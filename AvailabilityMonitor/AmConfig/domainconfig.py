@@ -14,6 +14,10 @@ class DomainConf:
         return self._domainname
 
     @property
+    def Protocol(self):
+        return self._protocol
+
+    @property
     def VIP(self):
         return self._vip
 
@@ -33,6 +37,7 @@ class DomainConf:
         self._parser = configparser.ConfigParser()
         self._parser.read(path)
         self._domainname = self._parser.get("domain", "domainname")
+        self._protocol = self._parser.get("domain","protocol")
         self._vip = self._parser.get("domain","vip")
         self._srcIpList = self._parser.get("domain","srcip").split(',')
         self._urlDic = self._readUrlDic()

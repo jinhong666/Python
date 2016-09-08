@@ -1,4 +1,4 @@
-#!/usr/bin/python
+﻿#!/usr/bin/python
 # -*- coding:utf-8 -*-
 #author: ddl
 #desc: read and store config

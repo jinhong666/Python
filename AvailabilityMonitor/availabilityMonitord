@@ -1,0 +1,35 @@
+#!/bin/bash
+#start api server availability monitor
+#chkconfig:345 90 02
+#description:availability
+#processname:AvailabilityMonitor
+pythonhome="/usr/local/bin"
+monitorhome="/usr/local/AvailabilityMonitor"
+case $1 in
+          start)
+             cd $monitorhome
+             py3="$pythonhome/python3.5"
+             echo $py3
+             nohup $py3 main.py availability >aout.file 2>&1 &
+             echo "Done!"
+             ;;
+          stop)
+             echo -e "stopping..."
+             pid=`ps aux | grep availability | grep -v grep | awk '{print $2}'`
+             if [ "$pid" = "" ] ; then
+                echo "no this process!"
+             else
+                kill -9 $pid
+                echo "Done!"
+             fi
+             ;;
+          status)
+             c_pid=`ps aux | grep availability | grep -v grep | awk '{print $2}'`
+             if [ "$c_pid" = "" ] ; then
+                echo "Stopped"
+             else
+                echo "Running $c_pid"
+             fi
+             ;;
+          *)  echo "require start|stop|status"  ;;
+esac
