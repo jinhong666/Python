@@ -12,7 +12,7 @@ class MainWorker:
         self._logger = logger
         self._conf = mainConf
         self._db = DbAccesser(self._conf.DbHost, self._conf.DbUserName, self._conf.DbPassword, self._conf.DbName)
-        self._webAccesser = WebAccesser()
+        self._webAccesser = WebAccesser('')
         self._webAccesser.SetUserAgent("ycapp web monitor")
 
     def Work(self):
@@ -20,24 +20,30 @@ class MainWorker:
             self._checkDomain(domainConf)
 
     def _checkDomain(self, domainConf):
-        self._webAccesser.SetDomainName(domainConf.DomainName)
-        self._logger.info("perform domain VIP:" + "[" + domainConf.VIP + "]" + domainConf.DomainName)
-        self._checkServerByIp(domainConf, domainConf.VIP, True)
-        for srcIP in domainConf.SrcIpList:
-            self._logger.info("perform domain SIP:" + "[" + srcIP + "]" + domainConf.DomainName)
-            self._checkServerByIp(domainConf, srcIP, False)
-
-    def _checkServerByIp(self, domainConf, ip, isVip):
-        self._webAccesser.SetWebIp(ip)
         for urlKey in list(domainConf.UrlDic.keys()):
             url = domainConf.UrlDic[urlKey]
             fullUrl = 'http://' + domainConf.DomainName + url
-            resData = self._webAccesser.RequestUrl(url)
-            if len(resData) == 0:
-                self._logger.info("Error\t" + fullUrl)
-                status = 0
-            else:
-                self._logger.info("OK\t" + fullUrl)
-                status = 1
-            self._db.RecordMonitor(domainConf.DomainName, url, ip, status, isVip)
+            self._webAccesser.SetUrl(fullUrl)
+            self._checkServerByIP(domainConf.DomainName,domainConf.VIP,True)
+            for srcIP in domainConf.SrcIpList:
+                self._checkServerByIP(domainConf.DomainName,srcIP,False)
+
+
+    def _checkServerByIP(self, domainName,ip,isVIP):
+        self._logger.info("perform domain ip:" + "[" + ip + "]" + domainName)
+        self._webAccesser.SetDomainIp(ip)
+        status = self._checkServer()
+        self._db.RecordMonitor(domainName, self._webAccesser.Url, ip, status, isVIP)
+
+
+    def _checkServer(self):
+        resData = self._webAccesser.Request()
+        if len(resData) == 0:
+            self._logger.info("Error\t" + self._webAccesser.Url)
+            status = 0
+        else:
+            self._logger.info("OK\t" + self._webAccesser.Url)
+            status = 1
+        return status
+
 

@@ -1,20 +1,25 @@
-import unittest,WebAccess.webaccesser
+import unittest
+from WebAccess.webaccesser import WebAccesser
 
 
-class MyTestCase(unittest.TestCase):
+class TestWeb(unittest.TestCase):
     def setUp(self):
-        self._url = '/yicheapp/getappconfigs/?appid=1'
+        self._url = 'http://api.ycapp.yiche.com/yicheapp/getappconfigs/?appid=1'
         self._ip = '59.151.102.138'
-        self._host = 'api.ycapp.yiche.com'
 
     def test_webaccess(self):
-        webAccesser = WebAccess.webaccesser.WebAccesser()
-        webAccesser.SetDomainName(self._host)
+        webAccesser = WebAccesser(self._url)
         webAccesser.SetUserAgent("bitauto.application : api monitor")
-        webAccesser.SetWebIp('59.151.102.138')
-        jsonData = webAccesser.RequestUrl(self._url)
+        #webAccesser.SetDomainIp(self._ip)
+        jsonData = webAccesser.Request()
         self.assertTrue(len(jsonData) > 0)
 
+    def test_fullUrl(self):
+        fullUrl = "http://www.ora.com:80/goodparts/test?q#fragment"
+        wa = WebAccesser(fullUrl)
+        self.assertEqual(wa.Protocol,'http')
+        self.assertEqual(wa.DonmainName,'www.ora.com')
+        self.assertEqual(wa.Port,80)
+        self.assertEqual(wa.Path,'/goodparts/test')
+        self.assertEqual(wa.QueryString,'q')
 
-if __name__ == '__main__':
-    unittest.main()
